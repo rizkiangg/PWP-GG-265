@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Data</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-4xl mx-auto p-4 bg-white shadow-md rounded">
+        <h1 class="text-2xl font-bold mb-4 text-center">User Data</h1>
+        <table class="min-w-full bg-white border border-gray-300">
+            <thead>
+                <tr>
+                    <th class="py-2 px-4 border-b">No</th>
+                    <th class="py-2 px-4 border-b">Username</th>
+                    <th class="py-2 px-4 border-b">Email</th>
+                    <th class="py-2 px-4 border-b">Role</th>
+                    <th class="py-2 px-4 border-b">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr class="hover:bg-gray-100">
+                    <td class="py-2 px-4 border-b">{{ loop.index }}</td>
+                    <td class="py-2 px-4 border-b">{{ user.username }}</td>
+                    <td class="py-2 px-4 border-b">{{ user.email }}</td>
+                    <td class="py-2 px-4 border-b">{{ user.role }}</td>
+                    <td class="py-2 px-4 border-b">
+                        <a href="{{ url_for('main.edit_user', user_id=user.id) }}" class="bg-yellow-500 text-white py-1 px-2 rounded hover:bg-yellow-700">Edit</a>
+                        <form action="{{ url_for('main.delete_user', user_id=user.id) }}" method="post" style="display:inline;">
+                            <button type="submit" class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-700">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="mt-4 text-center">
+            <form action="{{ url_for('main.logout') }}" method="post">
+                <button type="submit" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-700">Logout</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
