@@ -48,16 +48,22 @@ def logout():
 
 @main.route('/tampil-data', methods=['GET'])
 def tampil_data():
-    users = User.query.all()
-    return render_template('tampil-data.html', users=users)
+    page = request.args.get('page', 1, type=int)
+    query = request.args.get('query', '')
+    if query:
+        users_pagination = User.query.filter(User.username.like(f'%{query}%')).paginate(page=page, per_page=10)
+    else:
+        users_pagination = User.query.paginate(page=page, per_page=10)
+    current_user = User.query.get(session.get('user_id'))
+    return render_template('tampil-data.html', users_pagination=users_pagination, current_user=current_user, query=query)
 
-@main.route('/tambah-data', methods=['POST', 'GET'])
-def tambah_data():
-    # Implementasi untuk menambah data
-    pass
 
 @main.route('/edit/<int:user_id>', methods=['GET', 'POST'])
 def edit_user(user_id):
+    if not is_admin():
+        flash('You do not have permission to perform this action.', 'danger')
+        return redirect(url_for('main.tampil_data'))
+    
     user = User.query.get_or_404(user_id)
     if request.method == 'POST':
         user.username = request.form['username']
@@ -72,8 +78,42 @@ def edit_user(user_id):
 
 @main.route('/delete/<int:user_id>', methods=['POST'])
 def delete_user(user_id):
+    if not is_admin():
+        flash('You do not have permission to perform this action.', 'danger')
+        return redirect(url_for('main.tampil_data'))
+    
     user = User.query.get_or_404(user_id)
     db.session.delete(user)
     db.session.commit()
     flash('User deleted successfully!', 'success')
     return redirect(url_for('main.tampil_data'))
+
+@main.route('/add-user', methods=['GET', 'POST'])
+def add_user():
+    if not is_admin():
+        flash('You do not have permission to perform this action.', 'danger')
+        return redirect(url_for('main.tampil_data'))
+    
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        role = request.form['role']
+        
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            flash('Username already exists. Please choose a different username.', 'danger')
+            return redirect(url_for('main.add_user'))
+        
+        user = User(username=username, email=email, role=role)
+        db.session.add(user)
+        db.session.commit()
+        flash('User added successfully!', 'success')
+        return redirect(url_for('main.tampil_data'))
+    return render_template('add-user.html')
+
+def is_admin():
+    user_id = session.get('user_id')
+    if not user_id:
+        return False
+    user = User.query.get(user_id)
+    return user.role == 'admin'

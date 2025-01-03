@@ -3,43 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Data</title>
+    <title>Data Users</title>
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
-    <div class="w-full max-w-4xl mx-auto p-4 bg-white shadow-md rounded">
+    <div class="w-full max-w-4xl bg-white p-8 rounded shadow-md">
         <h1 class="text-2xl font-bold mb-4 text-center">User Data</h1>
+        <form method="GET" action="{{ url_for('main.tampil_data') }}" class="mb-4">
+            <input type="text" name="query" placeholder="Search by username" value="{{ query }}" class="p-2 border rounded w-full">
+            <button type="submit" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Search</button>
+        </form>
         <table class="min-w-full bg-white border border-gray-300">
             <thead>
-                <tr>
-                    <th class="py-2 px-4 border-b">No</th>
+                <tr class="text-left">
+                    <th class="py-2 px-4 border-b">#</th>
                     <th class="py-2 px-4 border-b">Username</th>
                     <th class="py-2 px-4 border-b">Email</th>
                     <th class="py-2 px-4 border-b">Role</th>
-                    <th class="py-2 px-4 border-b">Actions</th>
+                    {% if current_user.role == 'admin' %}
+                        <th class="py-2 px-4 border-b">Actions</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
-                {% for user in users %}
+                {% for user in users_pagination.items %}
                 <tr class="hover:bg-gray-100">
-                    <td class="py-2 px-4 border-b">{{ loop.index }}</td>
+                    <td class="py-2 px-4 border-b">{{ loop.index + (users_pagination.page - 1) * users_pagination.per_page }}</td>
                     <td class="py-2 px-4 border-b">{{ user.username }}</td>
                     <td class="py-2 px-4 border-b">{{ user.email }}</td>
                     <td class="py-2 px-4 border-b">{{ user.role }}</td>
-                    <td class="py-2 px-4 border-b">
-                        <a href="{{ url_for('main.edit_user', user_id=user.id) }}" class="bg-yellow-500 text-white py-1 px-2 rounded hover:bg-yellow-700">Edit</a>
-                        <form action="{{ url_for('main.delete_user', user_id=user.id) }}" method="post" style="display:inline;">
-                            <button type="submit" class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-700">Delete</button>
-                        </form>
-                    </td>
+                    {% if current_user.role == 'admin' %}
+                        <td class="py-2 px-4 border-b">
+                            <div class="items-center flex justify-center space-x-2">
+                                <a href="{{ url_for('main.edit_user', user_id=user.id) }}" class="bg-yellow-500 text-white py-1 px-2 rounded hover:bg-yellow-700">Edit</a>
+                                <form action="{{ url_for('main.delete_user', user_id=user.id) }}" method="post" style="display:inline;">
+                                    <button type="submit" class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-700">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    {% endif %}
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-        <div class="mt-4 text-center">
+        <div class="mt-4 flex justify-between text-center">
+            {% if current_user.role == 'admin' %}
+                <a href="{{ url_for('main.add_user') }}" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">Add User</a>
+            {% endif %}
             <form action="{{ url_for('main.logout') }}" method="post">
                 <button type="submit" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-700">Logout</button>
             </form>
+        </div>
+        <div class="mt-4 flex justify-center">
+            {% if users_pagination.has_prev %}
+                <a href="{{ url_for('main.tampil_data', page=users_pagination.prev_num, query=query) }}" class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400">Previous</a>
+            {% endif %}
+            <span class="px-3 py-1">{{ users_pagination.page }} of {{ users_pagination.pages }}</span>
+            {% if users_pagination.has_next %}
+                <a href="{{ url_for('main.tampil_data', page=users_pagination.next_num, query=query) }}" class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400">Next</a>
+            {% endif %}
         </div>
     </div>
 </body>
