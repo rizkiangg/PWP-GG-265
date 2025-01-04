@@ -98,6 +98,7 @@ def add_user():
         username = request.form['username']
         email = request.form['email']
         role = request.form['role']
+        password = request.form.get('password')  # Use get to avoid KeyError if password is not provided
         
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
@@ -105,6 +106,8 @@ def add_user():
             return redirect(url_for('main.add_user'))
         
         user = User(username=username, email=email, role=role)
+        if password:
+            user.set_password(password)  # Set the password only if provided
         db.session.add(user)
         db.session.commit()
         flash('User added successfully!', 'success')
