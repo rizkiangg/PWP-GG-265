@@ -13,40 +13,42 @@
             <input type="text" name="query" placeholder="Search by username" value="{{ query }}" class="p-2 border rounded w-full">
             <button type="submit" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Search</button>
         </form>
-        <table class="min-w-full bg-white border border-gray-300">
-            <thead>
-                <tr class="text-left">
-                    <th class="py-2 px-4 border-b">#</th>
-                    <th class="py-2 px-4 border-b">Username</th>
-                    <th class="py-2 px-4 border-b">Email</th>
-                    <th class="py-2 px-4 border-b">Role</th>
-                    {% if current_user.role == 'admin' %}
-                        <th class="py-2 px-4 border-b">Actions</th>
-                    {% endif %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users_pagination.items %}
-                <tr class="hover:bg-gray-100">
-                    <td class="py-2 px-4 border-b">{{ loop.index + (users_pagination.page - 1) * users_pagination.per_page }}</td>
-                    <td class="py-2 px-4 border-b">{{ user.username }}</td>
-                    <td class="py-2 px-4 border-b">{{ user.email }}</td>
-                    <td class="py-2 px-4 border-b">{{ user.role }}</td>
-                    {% if current_user.role == 'admin' %}
-                        <td class="py-2 px-4 border-b">
-                            <div class="items-center flex justify-center space-x-2">
-                                <a href="{{ url_for('main.edit_user', user_id=user.id) }}" class="bg-yellow-500 text-white py-1 px-2 rounded hover:bg-yellow-700">Edit</a>
-                                <form action="{{ url_for('main.delete_user', user_id=user.id) }}" method="post" style="display:inline;">
-                                    <button type="submit" class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-700">Delete</button>
-                                </form>
-                            </div>
-                        </td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <div class="mt-4 flex justify-between text-center">
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-300">
+                <thead>
+                    <tr class="text-left">
+                        <th class="py-2 px-4 border-b">#</th>
+                        <th class="py-2 px-4 border-b">Username</th>
+                        <th class="py-2 px-4 border-b">Email</th>
+                        <th class="py-2 px-4 border-b">Role</th>
+                        {% if current_user.role == 'admin' %}
+                            <th class="py-2 px-4 border-b">Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users_pagination.items %}
+                    <tr class="hover:bg-gray-100">
+                        <td class="py-2 px-4 border-b">{{ loop.index + (users_pagination.page - 1) * users_pagination.per_page }}</td>
+                        <td class="py-2 px-4 border-b">{{ user.username }}</td>
+                        <td class="py-2 px-4 border-b">{{ user.email }}</td>
+                        <td class="py-2 px-4 border-b">{{ user.role }}</td>
+                        {% if current_user.role == 'admin' %}
+                            <td class="py-2 px-4 border-b">
+                                <div class="items-center flex justify-center space-x-2">
+                                    <a href="{{ url_for('main.edit_user', user_id=user.id) }}" class="bg-yellow-500 text-white py-1 px-2 rounded hover:bg-yellow-700">Edit</a>
+                                    <form action="{{ url_for('main.delete_user', user_id=user.id) }}" method="post" style="display:inline;">
+                                        <button type="submit" class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-700">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-4 flex justify-end text-center">
             {% if current_user.role == 'admin' %}
                 <a href="{{ url_for('main.add_user') }}" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">Add User</a>
             {% endif %}
